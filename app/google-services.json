@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "463556885910",
+    "project_id": "teamhulkprojectwork",
+    "storage_bucket": "teamhulkprojectwork.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463556885910:android:8eedf6cfcc2d30fc1831b7",
+        "android_client_info": {
+          "package_name": "com.example.team_hulk_project_application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "463556885910-76erh3udq6l6gmvjambfli4mek4oub4v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4w6Zbp1j6hlVZHukKx-OZ-DqOIii3RaM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "463556885910-76erh3udq6l6gmvjambfli4mek4oub4v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
