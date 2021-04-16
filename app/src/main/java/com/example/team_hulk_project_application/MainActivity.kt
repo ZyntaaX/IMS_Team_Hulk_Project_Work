@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         firestoreManager.TestFirestore("HEJHEJ");
         channel = manager.initialize(this, mainLooper, null)
         channel?.also { channel -> receiver = WifiDirectBroadcastReceiver(manager, channel, this) }
-        findPeers(manager, channel)
+        findPeers(manager, channel, this)
         connectToMower()
     }
 
@@ -88,14 +88,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun findPeers(manager: WifiP2pManager, channelListener: WifiP2pManager.Channel?){
+    private fun findPeers(manager: WifiP2pManager, channelListener: WifiP2pManager.Channel?, context: Context){
         manager?.discoverPeers(channelListener, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
-                Toast.makeText(this, "There are peers close by", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "There are peers close by", Toast.LENGTH_SHORT).show()
             }
 
             override fun onFailure(reasonCode: Int) {
-                Toast.makeText(this, "There are no peers close by", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "There are no peers close by", Toast.LENGTH_SHORT).show()
             }
         })
     }
