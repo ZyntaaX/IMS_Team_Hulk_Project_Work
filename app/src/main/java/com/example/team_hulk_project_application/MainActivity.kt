@@ -110,23 +110,29 @@ class MainActivity : AppCompatActivity() {
 
             val host = "127.0.0.1"
             val port = 60003
-            val message: String
-            val client = Socket(host, port)
-            val outputStream = client.getOutputStream()
-            val inputStream = client.getInputStream()
-            val buf = ByteArray(1024)
+            var message: String
 
             if (connectionStatus == 0) {
-                outputStream.write("Hello Mower from App".toByteArray())
-                message = inputStream.read(buf).toString()
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                Thread{
+                    val client = Socket(host, port)
+                    val outputStream = client.getOutputStream()
+                    val inputStream = client.getInputStream()
+                    val buf = ByteArray(1024)
+                    outputStream.write("Hello Mower from App".toByteArray())
+                    message = inputStream.read(buf).toString()
+                    Log.d("clientTest", message)
+                    runOnUiThread{
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    }
+                    client.close()
+                }
+
 
                 wifiIcon.visibility = View.VISIBLE
                 connectButton.text = "Disconnect from Mower"
                 connectionStatus = 1
                 Toast.makeText(this, "You are connected to the Mower", Toast.LENGTH_SHORT).show()
             } else {
-                client.close()
                 wifiIcon.visibility = View.INVISIBLE
                 connectButton.text = "Connect to Mower"
                 connectionStatus = 0
