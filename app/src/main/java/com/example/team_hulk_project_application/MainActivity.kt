@@ -1,10 +1,10 @@
 package com.example.team_hulk_project_application
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pManager
 import androidx.appcompat.app.AppCompatActivity
@@ -16,7 +16,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.team_hulk_project_application.Firestore.db
 import com.example.team_hulk_project_application.Firestore.firestoreManager
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
         addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -41,24 +41,23 @@ class MainActivity : AppCompatActivity() {
         firestoreManager.TestFirestore("HEJHEJ");
         channel = manager.initialize(this, mainLooper, null)
         channel?.also { channel -> receiver = WifiDirectBroadcastReceiver(manager, channel, this) }
-        connectToMower(manager)
+        findPeers(manager, channel)
+        connectToMower()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        when(requestCode){
+        when (requestCode) {
             ACCESS_FINE_LOCATION_CODE -> {
-                if(grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED){
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     Log.d("permissionLog", "Permission has been denied by user")
                     finishAffinity()
-                }
-                else{
+                } else {
                     Log.d("permissionLog", "Permission has been granted by user")
                 }
             }
         }
     }
 
-    private fun connectToMower(){
     override fun onResume() {
         super.onResume()
         receiver?.also { receiver ->
@@ -73,46 +72,49 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun connectToMower(manager: WifiP2pManager){
+    private fun setupPermissions() {
+        val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            Log.d("permissionLog", "Permission for GPS denied")
+            makeRequest()
+        }
+    }
+
+    private fun makeRequest() {
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION_CODE)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun findPeers(manager: WifiP2pManager, channelListener: WifiP2pManager.Channel?){
+        manager?.discoverPeers(channelListener, object : WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                Toast.makeText(this, "There are peers close by", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onFailure(reasonCode: Int) {
+                Toast.makeText(this, "There are no peers close by", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun connectToMower() {
         val connectButton = findViewById<Button>(R.id.connectButton)
         val wifiIcon = findViewById<ImageView>(R.id.wifiEnabledIcon)
 
         var connectionStatus = 0
 
-        connectButton.setOnClickListener{
-            manager?.discoverPeers(channel, object: WifiP2pManager.ActionListener{
-                override fun onSuccess() {
-                   Toast.makeText(this, "There are peers close by", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onFailure(reasonCode: Int) {
-                    Toast.makeText(this, "There are no peers close by", Toast.LENGTH_SHORT).show()
-                }
-            })
-            if(connectionStatus == 0){
+        connectButton.setOnClickListener {
+            if (connectionStatus == 0) {
                 wifiIcon.visibility = View.VISIBLE
                 connectButton.text = "Disconnect from Mower"
                 connectionStatus = 1
                 Toast.makeText(this, "You are connected to the Mower", Toast.LENGTH_SHORT).show()
-            }
-            else{
+            } else {
                 wifiIcon.visibility = View.INVISIBLE
                 connectButton.text = "Connect to Mower"
                 connectionStatus = 0
                 Toast.makeText(this, "You are disconnected from the Mower", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    private fun setupPermissions(){
-        val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-        if(permission != PackageManager.PERMISSION_GRANTED){
-            Log.d("permissionLog", "Permission for GPS denied")
-            makeRequest()
-        }
-    }
-
-    private fun makeRequest(){
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION_CODE)
     }
 }
