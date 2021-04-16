@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
 
         connectButton.setOnClickListener {
 
-            val host = "127.0.0.1"
+            val host = "10.0.2.2"
             val port = 60003
             var message: String
 
@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                     }
                     client.close()
-                }
+                }.start()
 
 
                 wifiIcon.visibility = View.VISIBLE
