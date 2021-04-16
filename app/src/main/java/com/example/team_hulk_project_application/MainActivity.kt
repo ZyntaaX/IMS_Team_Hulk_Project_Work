@@ -17,6 +17,9 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.team_hulk_project_application.Firestore.firestoreManager
+import java.io.InputStream
+import java.net.InetSocketAddress
+import java.net.Socket
 
 class MainActivity : AppCompatActivity() {
     private val ACCESS_FINE_LOCATION_CODE = 101
@@ -104,12 +107,26 @@ class MainActivity : AppCompatActivity() {
         var connectionStatus = 0
 
         connectButton.setOnClickListener {
+
+            val host = "127.0.0.1"
+            val port = 60003
+            val message: String
+            val client = Socket(host, port)
+            val outputStream = client.getOutputStream()
+            val inputStream = client.getInputStream()
+            val buf = ByteArray(1024)
+
             if (connectionStatus == 0) {
+                outputStream.write("Hello Mower from App".toByteArray())
+                message = inputStream.read(buf).toString()
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
                 wifiIcon.visibility = View.VISIBLE
                 connectButton.text = "Disconnect from Mower"
                 connectionStatus = 1
                 Toast.makeText(this, "You are connected to the Mower", Toast.LENGTH_SHORT).show()
             } else {
+                client.close()
                 wifiIcon.visibility = View.INVISIBLE
                 connectButton.text = "Connect to Mower"
                 connectionStatus = 0
