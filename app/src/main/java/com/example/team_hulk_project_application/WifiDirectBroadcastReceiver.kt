@@ -18,8 +18,9 @@ class WifiDirectBroadcastReceiver(
         private val activity: MainActivity
 ): BroadcastReceiver(){
     @SuppressLint("MissingPermission")
-    override fun onReceive(p0: Context, Intent: Intent) {
+    override fun onReceive(context: Context, Intent: Intent) {
         val action: String = Intent.action.toString()
+        var wifiDeviceLst = ArrayList<WifiP2pDevice>()
         when(action){
             WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
                 val state = Intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
@@ -34,25 +35,33 @@ class WifiDirectBroadcastReceiver(
             }
             WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION ->{
                 manager?.requestPeers(channel){ peers: WifiP2pDeviceList ->
-                    if (peers.deviceList.isEmpty()){
-                        Log.d("Test", "You no device found")
-                    }
-                    else{
+                        
                         Log.d("Test", "Device found")
-                        val builder = AlertDialog.Builder(p0)
+                        for (device in peers.deviceList) {
+                            wifiDeviceLst.add(device)
+                        }
+                        val builder = AlertDialog.Builder(context)
                         builder.setIcon(R.drawable.ic_launcher_foreground)
                         builder.setTitle("Select a peer for connection")
-                        builder.setNegativeButton("cancel", DialogInterface.OnClickListener())
+                        builder.setItems(wifiDeviceLst.toArray(arrayOf(String())), DialogInterface.OnClickListener { dialog, which ->
+                            when(which){
+                                0 -> {Log.d("Test", "working")}
+                            }
+                        })
+                        val dialog = builder.create()
+                        dialog.show()
+                        }
 
-                    }
+
                 }
-            }
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION ->{
-                "Do stuff"
+
             }
             WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
-                "Do stuff"
+
+
             }
         }
     }
 }
+
