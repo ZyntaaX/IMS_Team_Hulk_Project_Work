@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
 
         connectButton.setOnClickListener {
 
-            val host = "10.0.2.2"
+            val host = "172.20.10.5"
             val port = 60003
             var message: String
 
