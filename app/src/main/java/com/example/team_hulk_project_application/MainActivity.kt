@@ -104,17 +104,16 @@ class MainActivity : AppCompatActivity() {
         val connectButton = findViewById<Button>(R.id.connectButton)
         val wifiIcon = findViewById<ImageView>(R.id.wifiEnabledIcon)
 
+        val host = "10.0.2.2"
+        val port = 60003
+        var message: String
+        var client = Socket()
         var connectionStatus = 0
 
         connectButton.setOnClickListener {
-
-            val host = "10.0.2.2"
-            val port = 60003
-            var message: String
-
-            if (connectionStatus == 0) {
-                Thread{
-                    val client = Socket(host, port)
+            Thread{
+                if(connectionStatus == 0){
+                    client = Socket(host, port)
                     val outputStream = client.getOutputStream()
                     val inputStream = client.getInputStream()
                     val buf = ByteArray(1024)
@@ -122,22 +121,22 @@ class MainActivity : AppCompatActivity() {
                     message = inputStream.read(buf).toString()
                     Log.d("clientTest", message)
                     runOnUiThread{
+                        wifiIcon.visibility = View.VISIBLE
+                        connectButton.text = "Disconnect from Mower"
+                        connectionStatus = 1
+                        Toast.makeText(this, "You are connected to the Mower", Toast.LENGTH_SHORT).show()
                         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                     }
+                } else {
                     client.close()
-                }.start()
-
-
-                wifiIcon.visibility = View.VISIBLE
-                connectButton.text = "Disconnect from Mower"
-                connectionStatus = 1
-                Toast.makeText(this, "You are connected to the Mower", Toast.LENGTH_SHORT).show()
-            } else {
-                wifiIcon.visibility = View.INVISIBLE
-                connectButton.text = "Connect to Mower"
-                connectionStatus = 0
-                Toast.makeText(this, "You are disconnected from the Mower", Toast.LENGTH_SHORT).show()
-            }
+                    runOnUiThread{
+                        wifiIcon.visibility = View.INVISIBLE
+                        connectButton.text = "Connect to Mower"
+                        connectionStatus = 0
+                        Toast.makeText(this, "You are disconnected from the Mower", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
         }
     }
 }
