@@ -20,7 +20,7 @@ class WifiDirectBroadcastReceiver(
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, Intent: Intent) {
         val action: String = Intent.action.toString()
-        var wifiDeviceLst = ArrayList<WifiP2pDevice>()
+        var wifiDeviceLst = ArrayList<String>()
         when(action){
             WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
                 val state = Intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
@@ -38,7 +38,7 @@ class WifiDirectBroadcastReceiver(
                         
                         Log.d("Test", "Device found")
                         for (device in peers.deviceList) {
-                            wifiDeviceLst.add(device)
+                            wifiDeviceLst.add(device.toString())
                         }
                         val builder = AlertDialog.Builder(context)
                         builder.setIcon(R.drawable.ic_launcher_foreground)
