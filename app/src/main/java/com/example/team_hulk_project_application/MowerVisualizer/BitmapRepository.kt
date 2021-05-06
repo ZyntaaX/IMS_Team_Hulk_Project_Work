@@ -1,4 +1,5 @@
-package com.example.team_hulk_project_application.MowerVisualizer
+import com.example.team_hulk_project_application.MowerVisualizer.ImageLayer
+import com.example.team_hulk_project_application.MowerVisualizer.ImageLayerKeyword
 
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -10,12 +11,16 @@ val bitmapRepository = BitmapRepository()
 class BitmapRepository {
     private val mower1 = mutableListOf<ImageLayer>()
 
-    fun ChangeVisibilityByKeyword(key: ImageLayerKeyword, visible: Boolean) {
+    fun changeVisibilityByKeyword(key: ImageLayerKeyword, visible: Boolean) {
         mower1.find {
             it.keyWord == key
         }?.run {
             isVisible = visible
         }
+    }
+
+    fun getMutableList() : MutableList<ImageLayer>? {
+        return mower1;
     }
 
     fun init(res: Resources, finished: (Boolean) -> Unit) {

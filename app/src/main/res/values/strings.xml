@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Team_Hulk_Project_Application</string>
+    <string name="wifi_symbol">Wifi Symbol</string>'
+    <string name="connect_to_mower">Connect to Mower</string>
+    <string name="mower_description">Mower</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connect">Connect</string>
+    <string name="switchToManualMode">Manual</string>
+    <string name="switchToAutoMode">Auto</string>
+    <string name="arrow">arrow</string>
 </resources>

@@ -7,29 +7,41 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.team_hulk_project_application.Firestore.firestoreManager
-import java.io.InputStream
-import java.net.InetSocketAddress
+import bitmapRepository
+import com.example.team_hulk_project_application.MowerVisualizer.ImageLayerKeyword
+import com.example.team_hulk_project_application.MowerVisualizer.bitmapGenerator
 import java.net.Socket
 
 class MainActivity : AppCompatActivity() {
     private val ACCESS_FINE_LOCATION_CODE = 101
 
-    val manager: WifiP2pManager by lazy(LazyThreadSafetyMode.NONE) {
+    private lateinit var connectButton: Button
+    private lateinit var disconnectButton: Button
+    private lateinit var wifiIcon: ImageView
+    private lateinit var collisionVisualizer: ImageView
+    private lateinit var switchCollision: Button
+    private lateinit var switchControlMode: Button
+
+    private lateinit var arrowUp: ImageButton
+    private lateinit var arrowDown: ImageButton
+    private lateinit var arrowLeft: ImageButton
+    private lateinit var arrowRight: ImageButton
+
+    private var manualMode = false
+
+    private val manager: WifiP2pManager by lazy(LazyThreadSafetyMode.NONE) {
         getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
     }
-    var channel: WifiP2pManager.Channel? = null
-    var receiver: BroadcastReceiver? = null
-    val intentFilter = IntentFilter().apply {
+    private var channel: WifiP2pManager.Channel? = null
+    private var receiver: BroadcastReceiver? = null
+    private val intentFilter = IntentFilter().apply {
         addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
         addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION)
         addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
@@ -40,11 +52,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initializing all references to components in the layout-file
+        connectButton = findViewById(R.id.connectButton)
+        disconnectButton = findViewById(R.id.disconnectButton)
+        wifiIcon = findViewById(R.id.wifiEnabledIcon)
+        collisionVisualizer = findViewById(R.id.mower_collision)
+        switchCollision = findViewById(R.id.switchcollisionindicator)
+        switchControlMode = findViewById(R.id.switchControlMode)
+
+        arrowUp = findViewById(R.id.arrow_up)
+        arrowDown = findViewById(R.id.arrow_down)
+        arrowLeft = findViewById(R.id.arrow_left)
+        arrowRight = findViewById(R.id.arrow_right)
+
         setupPermissions()
-        firestoreManager.TestFirestore("HEJHEJ");
         channel = manager.initialize(this, mainLooper, null)
         channel?.also { channel -> receiver = WifiDirectBroadcastReceiver(manager, channel, this) }
         findPeers(manager, channel, this)
+
+        setAppButtonListeners()
+
         connectToMower()
     }
 
@@ -89,7 +116,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun findPeers(manager: WifiP2pManager, channelListener: WifiP2pManager.Channel?, context: Context){
-        manager?.discoverPeers(channelListener, object : WifiP2pManager.ActionListener {
+        manager.discoverPeers(channelListener, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
                 Toast.makeText(context, "There are peers close by", Toast.LENGTH_SHORT).show()
             }
@@ -101,14 +128,71 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun connectToMower() {
-        val connectButton = findViewById<Button>(R.id.connectButton)
-        val wifiIcon = findViewById<ImageView>(R.id.wifiEnabledIcon)
+        // MOVE THIS INIT TO A SPLASHSCREEN FOR CLEANER CODE
+        bitmapRepository.init(resources) { finished ->
+            if (finished) {
+                bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, false)
+                bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, false)
+                bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, false)
+
+                bitmapGenerator.createBitmap(bitmapRepository.getMutableList()!!) { bitmap, _, _ ->
+                    collisionVisualizer.setImageBitmap(bitmap)
+                }
+            }
+        }
+
+        // NEEDS TO BE CLEANED UP, WAITING FOR ACTUAL MOWER DATA
+        var counter = 3;
+        switchCollision.setOnClickListener {
+            counter--;
+            if (counter < 0)
+                counter = 3
+
+            when(counter) {
+                3 -> {
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, false)
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, false)
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, false)
+                }
+                2 -> {
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, true)
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, false)
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, false)
+                }
+                1 -> {
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, false)
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, true)
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, false)
+                }
+                0 -> {
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, false)
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, false)
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, true)
+                }
+            }
+
+            bitmapGenerator.createBitmap(bitmapRepository.getMutableList()!!) { bitmap, _, _ ->
+                collisionVisualizer.setImageBitmap(bitmap)
+            }
+        }
 
         val host = "10.0.2.2"
         val port = 60003
         var message: String
         var client = Socket()
         var connectionStatus = 0
+
+        if (connectionStatus == 0) {
+            //setViewConnectedToMowerManualControl()
+            //setViewConnectedToMowerAutoControl()
+            setViewDisconnectedFromMower()
+        } else {
+            if (manualMode) {
+                setViewConnectedToMowerManualControl()
+            } else {
+                setViewConnectedToMowerAutoControl()
+            }
+        }
 
         connectButton.setOnClickListener {
             Thread{
@@ -121,22 +205,103 @@ class MainActivity : AppCompatActivity() {
                     message = inputStream.read(buf).toString()
                     Log.d("clientTest", message)
                     runOnUiThread{
-                        wifiIcon.visibility = View.VISIBLE
-                        connectButton.text = "Disconnect from Mower"
+                        if (manualMode) {
+                            setViewConnectedToMowerManualControl()
+                        } else {
+                            setViewConnectedToMowerAutoControl()
+                        }
+
                         connectionStatus = 1
                         Toast.makeText(this, "You are connected to the Mower", Toast.LENGTH_SHORT).show()
                         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    client.close()
-                    runOnUiThread{
-                        wifiIcon.visibility = View.INVISIBLE
-                        connectButton.text = "Connect to Mower"
-                        connectionStatus = 0
-                        Toast.makeText(this, "You are disconnected from the Mower", Toast.LENGTH_SHORT).show()
-                    }
                 }
             }.start()
         }
+
+        disconnectButton.setOnClickListener {
+            Thread{
+                client.close()
+                runOnUiThread {
+                    setViewDisconnectedFromMower()
+
+                    connectionStatus = 0
+                    Toast.makeText(this, "You are disconnected from the Mower", Toast.LENGTH_SHORT).show()
+                }
+            }.start()
+        }
+    }
+
+    private fun setAppButtonListeners() {
+        switchControlMode.setOnClickListener {
+            Log.d("clientTest", "HEJ")
+            if (manualMode) {
+                setViewConnectedToMowerAutoControl()
+            } else {
+                setViewConnectedToMowerManualControl()
+            }
+        }
+
+        arrowRight.setOnClickListener {
+            Log.d("clientTest", "Right")
+        }
+        arrowLeft.setOnClickListener {
+            Log.d("clientTest", "Left")
+        }
+        arrowUp.setOnClickListener {
+            Log.d("clientTest", "Up")
+        }
+        arrowDown.setOnClickListener {
+            Log.d("clientTest", "Down")
+        }
+    }
+
+    private fun setViewDisconnectedFromMower() {
+        hideAllViews()
+
+        connectButton.visibility = View.VISIBLE
+    }
+
+    private fun setViewConnectedToMowerAutoControl() {
+        hideAllViews()
+
+        manualMode = false
+        switchControlMode.text = resources.getString(R.string.switchToManualMode)
+
+        disconnectButton.visibility = View.VISIBLE
+        wifiIcon.visibility = View.VISIBLE
+        collisionVisualizer.visibility = View.VISIBLE
+        switchControlMode.visibility = View.VISIBLE
+        switchCollision.visibility = View.VISIBLE
+    }
+
+    private fun setViewConnectedToMowerManualControl() {
+        hideAllViews()
+
+        manualMode = true
+        switchControlMode.text = resources.getString(R.string.switchToAutoMode)
+
+        disconnectButton.visibility = View.VISIBLE
+        wifiIcon.visibility = View.VISIBLE
+        switchControlMode.visibility = View.VISIBLE
+
+        arrowUp.visibility = View.VISIBLE
+        arrowDown.visibility = View.VISIBLE
+        arrowLeft.visibility = View.VISIBLE
+        arrowRight.visibility = View.VISIBLE
+    }
+
+    private fun hideAllViews() {
+        connectButton.visibility = View.INVISIBLE
+        disconnectButton.visibility = View.INVISIBLE
+        wifiIcon.visibility = View.INVISIBLE
+        collisionVisualizer.visibility = View.INVISIBLE
+        switchCollision.visibility = View.INVISIBLE
+        switchControlMode.visibility = View.INVISIBLE
+
+        arrowUp.visibility = View.INVISIBLE
+        arrowDown.visibility = View.INVISIBLE
+        arrowLeft.visibility = View.INVISIBLE
+        arrowRight.visibility = View.INVISIBLE
     }
 }

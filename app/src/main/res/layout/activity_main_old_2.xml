@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <!--
+    ID's:
+
+    control_mode_auto
+    wifiEnabledIcon -
+    mower_collision
+    switchcollisionindicator
+    connectButton -
+    control_mode_manual
+
+    -->
+
+    <!-- - - - - - - - WIFI SIGNAL IMAGE INDICATOR - - - - - - - - - -->
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/disconnected_weight1">
+    </Space>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight=".1">
+        </Space>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/wifi_signal_off"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/wifi_symbol"
+            android:drawableLeft="@drawable/wifi_signal_off"
+            android:text="@string/connect"
+            android:textColor="@color/black"
+            tools:ignore="RtlHardcoded"
+            android:id="@+id/connectButton">
+        </Button>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:id="@+id/disconnected_weight2">
+        </Space>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_wifi_24"
+            android:contentDescription="@string/wifi_symbol"
+            android:id="@+id/wifiEnabledIcon"
+            >
+        </ImageView>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight=".1">
+        </Space>
+
+    </LinearLayout>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="0">
+    </Space>
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- - - - - - - - MOWER AUTO CONTROL LAYOUT - - - - - - - - - -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/mower_collision"
+            android:src="@drawable/mower_base_temp_min"
+            android:contentDescription="@string/mower_description">
+        </ImageView>
+
+    </LinearLayout>
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- - - - - - - - MOWER MANUAL CONTROL LAYOUT - - - - - - - - - -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+    </LinearLayout>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- - - - - - - - CONNECT TO MOWER BUTTON VIEW - - - - - - - - - -->
+
+    <!-- REMOVE THIS WHEN IMPLEMENTED PROPERLY -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+        </Space>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_wifi_24"
+            android:contentDescription="@string/connect_to_mower"
+            android:text="SIMULATE COLLISION CHANGE"
+            android:id="@+id/switchcollisionindicator">
+        </Button>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+        </Space>
+
+    </LinearLayout>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+</LinearLayout>
