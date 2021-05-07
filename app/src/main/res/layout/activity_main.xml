@@ -116,6 +116,18 @@
             android:tint="@color/black">
         </ImageButton>
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STOP"
+            app:layout_constraintBottom_toTopOf="@id/arrow_down"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/arrow_up"
+            android:id="@+id/stopButton"
+            android:visibility="visible">
+        </Button>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

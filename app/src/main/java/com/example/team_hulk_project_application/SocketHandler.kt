@@ -8,9 +8,8 @@ import java.net.SocketException
 class SocketHandler {
 
     //Socket attributes
-    private val host = "10.0.0.2"
+    private val host = "10.0.2.2" //172.20.10.5 RPI
     private val port = 60003
-    private var socket = Socket(host, port)
 
     //Mower drive commands
     private val COMMAND_AUTO = "auto"
@@ -36,7 +35,7 @@ class SocketHandler {
             BUTTON_COMMAND_AUTO -> {
                 Thread(Runnable{
                     try{
-                        val client = socket
+                        val client = Socket(host, port)
                         val outputStream = DataOutputStream(client.getOutputStream())
                         outputStream.write(COMMAND_AUTO.toByteArray())
                         client.close()
@@ -50,7 +49,7 @@ class SocketHandler {
             BUTTON_COMMAND_MANUAL -> {
                 Thread(Runnable{
                     try{
-                        val client = socket
+                        val client = Socket(host, port)
                         val outputStream = DataOutputStream(client.getOutputStream())
                         outputStream.write(COMMAND_MANUAL.toByteArray())
                         client.close()
@@ -64,7 +63,7 @@ class SocketHandler {
             BUTTON_COMMAND_STOP -> {
                 Thread(Runnable{
                     try{
-                        val client = socket
+                        val client = Socket(host, port)
                         val outputStream = DataOutputStream(client.getOutputStream())
                         outputStream.write(COMMAND_STOP.toByteArray())
                         client.close()
@@ -78,7 +77,7 @@ class SocketHandler {
             BUTTON_COMMAND_MOVE_FORWARD -> {
                 Thread(Runnable{
                     try{
-                        val client = socket
+                        val client = Socket(host, port)
                         val outputStream = DataOutputStream(client.getOutputStream())
                         outputStream.write(COMMAND_MOVE_FORWARD.toByteArray())
                         client.close()
@@ -92,7 +91,7 @@ class SocketHandler {
             BUTTON_COMMAND_MOVE_BACKWARD -> {
                 Thread(Runnable{
                     try{
-                        val client = socket
+                        val client = Socket(host, port)
                         val outputStream = DataOutputStream(client.getOutputStream())
                         outputStream.write(COMMAND_MOVE_BACKWARD.toByteArray())
                         client.close()
@@ -106,7 +105,7 @@ class SocketHandler {
             BUTTON_COMMAND_MOVE_RIGHT -> {
                 Thread(Runnable{
                     try{
-                        val client = socket
+                        val client = Socket(host, port)
                         val outputStream = DataOutputStream(client.getOutputStream())
                         outputStream.write(COMMAND_MOVE_RIGHT.toByteArray())
                         client.close()
@@ -120,9 +119,10 @@ class SocketHandler {
             BUTTON_COMMAND_MOVE_LEFT -> {
                 Thread(Runnable{
                     try{
-                        val client = socket
+                        val client = Socket(host, port)
                         val outputStream = DataOutputStream(client.getOutputStream())
                         outputStream.write(COMMAND_MOVE_LEFT.toByteArray())
+                        Log.d("LeftTest", "Left click works")
                         client.close()
                     }
                     catch(exception: SocketException){

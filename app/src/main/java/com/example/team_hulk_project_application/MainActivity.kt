@@ -2,6 +2,7 @@ package com.example.team_hulk_project_application
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.usage.UsageEvents
 import android.content.pm.PackageManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,15 +10,19 @@ import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.accessibility.AccessibilityEventCompat.getAction
 import bitmapRepository
 import com.example.team_hulk_project_application.MowerVisualizer.ImageLayerKeyword
 import com.example.team_hulk_project_application.MowerVisualizer.bitmapGenerator
 import java.net.Socket
+import java.security.Key
 
 class MainActivity : AppCompatActivity() {
     private val ACCESS_FINE_LOCATION_CODE = 101
@@ -33,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var arrowDown: ImageButton
     private lateinit var arrowLeft: ImageButton
     private lateinit var arrowRight: ImageButton
+    private lateinit var stopButton: Button
 
     private var manualMode = false
 
@@ -47,6 +53,8 @@ class MainActivity : AppCompatActivity() {
         addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
         addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION)
     }
+
+    private var socketHandler = SocketHandler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +72,7 @@ class MainActivity : AppCompatActivity() {
         arrowDown = findViewById(R.id.arrow_down)
         arrowLeft = findViewById(R.id.arrow_left)
         arrowRight = findViewById(R.id.arrow_right)
+        stopButton = findViewById(R.id.stopButton)
 
         setupPermissions()
         channel = manager.initialize(this, mainLooper, null)
@@ -75,7 +84,11 @@ class MainActivity : AppCompatActivity() {
         connectToMower()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         when (requestCode) {
             ACCESS_FINE_LOCATION_CODE -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
@@ -103,7 +116,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupPermissions() {
-        val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        val permission =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
         if (permission != PackageManager.PERMISSION_GRANTED) {
             Log.d("permissionLog", "Permission for GPS denied")
             makeRequest()
@@ -111,11 +125,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun makeRequest() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION_CODE)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            ACCESS_FINE_LOCATION_CODE
+        )
     }
 
     @SuppressLint("MissingPermission")
-    private fun findPeers(manager: WifiP2pManager, channelListener: WifiP2pManager.Channel?, context: Context){
+    private fun findPeers(
+        manager: WifiP2pManager,
+        channelListener: WifiP2pManager.Channel?,
+        context: Context
+    ) {
         manager.discoverPeers(channelListener, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
                 Toast.makeText(context, "There are peers close by", Toast.LENGTH_SHORT).show()
@@ -142,32 +164,68 @@ class MainActivity : AppCompatActivity() {
         }
 
         // NEEDS TO BE CLEANED UP, WAITING FOR ACTUAL MOWER DATA
-        var counter = 3;
+        var counter = 3
         switchCollision.setOnClickListener {
-            counter--;
+            counter--
             if (counter < 0)
                 counter = 3
 
-            when(counter) {
+            when (counter) {
                 3 -> {
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, false)
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, false)
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, false)
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision1,
+                        false
+                    )
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision2,
+                        false
+                    )
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision3,
+                        false
+                    )
                 }
                 2 -> {
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, true)
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, false)
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, false)
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision1,
+                        true
+                    )
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision2,
+                        false
+                    )
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision3,
+                        false
+                    )
                 }
                 1 -> {
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, false)
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, true)
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, false)
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision1,
+                        false
+                    )
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision2,
+                        true
+                    )
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision3,
+                        false
+                    )
                 }
                 0 -> {
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, false)
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, false)
-                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, true)
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision1,
+                        false
+                    )
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision2,
+                        false
+                    )
+                    bitmapRepository.changeVisibilityByKeyword(
+                        ImageLayerKeyword.MowerCollision3,
+                        true
+                    )
                 }
             }
 
@@ -176,10 +234,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val host = "10.0.2.2"
-        val port = 60003
-        var message: String
-        var client = Socket()
         var connectionStatus = 0
 
         if (connectionStatus == 0) {
@@ -195,40 +249,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         connectButton.setOnClickListener {
-            Thread{
-                if(connectionStatus == 0){
-                    client = Socket(host, port)
-                    val outputStream = client.getOutputStream()
-                    val inputStream = client.getInputStream()
-                    val buf = ByteArray(1024)
-                    outputStream.write("Hello Mower from App".toByteArray())
-                    message = inputStream.read(buf).toString()
-                    Log.d("clientTest", message)
-                    runOnUiThread{
-                        if (manualMode) {
-                            setViewConnectedToMowerManualControl()
-                        } else {
-                            setViewConnectedToMowerAutoControl()
-                        }
-
-                        connectionStatus = 1
-                        Toast.makeText(this, "You are connected to the Mower", Toast.LENGTH_SHORT).show()
-                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                    }
+            if (connectionStatus == 0) {
+                if (manualMode) {
+                    setViewConnectedToMowerManualControl()
+                } else {
+                    setViewConnectedToMowerAutoControl()
                 }
-            }.start()
+                connectionStatus = 1
+            }
         }
 
         disconnectButton.setOnClickListener {
-            Thread{
-                client.close()
-                runOnUiThread {
-                    setViewDisconnectedFromMower()
-
-                    connectionStatus = 0
-                    Toast.makeText(this, "You are disconnected from the Mower", Toast.LENGTH_SHORT).show()
-                }
-            }.start()
+            setViewDisconnectedFromMower()
+            connectionStatus = 0
         }
     }
 
@@ -236,23 +269,33 @@ class MainActivity : AppCompatActivity() {
         switchControlMode.setOnClickListener {
             Log.d("clientTest", "HEJ")
             if (manualMode) {
+                socketHandler.onKeyDown(0)
                 setViewConnectedToMowerAutoControl()
             } else {
+                socketHandler.onKeyDown(1)
                 setViewConnectedToMowerManualControl()
             }
         }
 
         arrowRight.setOnClickListener {
-            Log.d("clientTest", "Right")
+            socketHandler.onKeyDown(5)
+            Toast.makeText(this, "Right click", Toast.LENGTH_SHORT).show()
         }
         arrowLeft.setOnClickListener {
-            Log.d("clientTest", "Left")
+            socketHandler.onKeyDown(6)
+            Toast.makeText(this, "Left click", Toast.LENGTH_SHORT).show()
         }
         arrowUp.setOnClickListener {
-            Log.d("clientTest", "Up")
+            socketHandler.onKeyDown(3)
+            Toast.makeText(this, "Forward click", Toast.LENGTH_SHORT).show()
         }
         arrowDown.setOnClickListener {
-            Log.d("clientTest", "Down")
+            socketHandler.onKeyDown(4)
+            Toast.makeText(this, "Backward click", Toast.LENGTH_SHORT).show()
+        }
+        stopButton.setOnClickListener{
+            socketHandler.onKeyDown(2)
+            Toast.makeText(this, "STOP", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -289,6 +332,7 @@ class MainActivity : AppCompatActivity() {
         arrowDown.visibility = View.VISIBLE
         arrowLeft.visibility = View.VISIBLE
         arrowRight.visibility = View.VISIBLE
+        stopButton.visibility = View.VISIBLE
     }
 
     private fun hideAllViews() {
@@ -303,5 +347,6 @@ class MainActivity : AppCompatActivity() {
         arrowDown.visibility = View.INVISIBLE
         arrowLeft.visibility = View.INVISIBLE
         arrowRight.visibility = View.INVISIBLE
+        stopButton.visibility = View.INVISIBLE
     }
 }
