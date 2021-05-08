@@ -15,6 +15,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat.getAction
@@ -72,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         arrowDown = findViewById(R.id.arrow_down)
         arrowLeft = findViewById(R.id.arrow_left)
         arrowRight = findViewById(R.id.arrow_right)
-        stopButton = findViewById(R.id.stopButton)
 
         setupPermissions()
         channel = manager.initialize(this, mainLooper, null)
@@ -265,6 +265,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setAppButtonListeners() {
         switchControlMode.setOnClickListener {
             Log.d("clientTest", "HEJ")
@@ -277,25 +278,61 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        arrowRight.setOnClickListener {
-            socketHandler.onKeyDown(5)
-            Toast.makeText(this, "Right click", Toast.LENGTH_SHORT).show()
+        arrowRight.setOnTouchListener { v, event ->
+            val action = event.action
+            when (action) {
+                MotionEvent.ACTION_DOWN -> {
+                    socketHandler.onKeyDown(5)
+                    Toast.makeText(this, "Turn right", Toast.LENGTH_SHORT).show()
+                }
+                MotionEvent.ACTION_UP -> {
+                    socketHandler.onKeyDown(2)
+                    Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show()
+                }
+            }
+            true
         }
-        arrowLeft.setOnClickListener {
-            socketHandler.onKeyDown(6)
-            Toast.makeText(this, "Left click", Toast.LENGTH_SHORT).show()
+        arrowLeft.setOnTouchListener { v, event ->
+            val action = event.action
+            when(action) {
+                MotionEvent.ACTION_DOWN -> {
+                    socketHandler.onKeyDown(6)
+                    Toast.makeText(this, "Turn left", Toast.LENGTH_SHORT).show()
+                }
+                MotionEvent.ACTION_UP -> {
+                    socketHandler.onKeyDown(2)
+                    Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show()
+                }
+            }
+            true
         }
-        arrowUp.setOnClickListener {
-            socketHandler.onKeyDown(3)
-            Toast.makeText(this, "Forward click", Toast.LENGTH_SHORT).show()
+        arrowUp.setOnTouchListener { v, event->
+            val action = event.action
+            when(action) {
+                MotionEvent.ACTION_DOWN -> {
+                    socketHandler.onKeyDown(3)
+                    Toast.makeText(this, "Forward", Toast.LENGTH_SHORT).show()
+                }
+                MotionEvent.ACTION_UP -> {
+                    socketHandler.onKeyDown(2)
+                    Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show()
+                }
+            }
+            true
         }
-        arrowDown.setOnClickListener {
-            socketHandler.onKeyDown(4)
-            Toast.makeText(this, "Backward click", Toast.LENGTH_SHORT).show()
-        }
-        stopButton.setOnClickListener{
-            socketHandler.onKeyDown(2)
-            Toast.makeText(this, "STOP", Toast.LENGTH_SHORT).show()
+        arrowDown.setOnTouchListener { v, event->
+            val action = event.action
+            when(action) {
+                MotionEvent.ACTION_DOWN -> {
+                    socketHandler.onKeyDown(4)
+                    Toast.makeText(this, "Reverse", Toast.LENGTH_SHORT).show()
+                }
+                MotionEvent.ACTION_UP -> {
+                    socketHandler.onKeyDown(2)
+                    Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show()
+                }
+            }
+            true
         }
     }
 
@@ -332,7 +369,6 @@ class MainActivity : AppCompatActivity() {
         arrowDown.visibility = View.VISIBLE
         arrowLeft.visibility = View.VISIBLE
         arrowRight.visibility = View.VISIBLE
-        stopButton.visibility = View.VISIBLE
     }
 
     private fun hideAllViews() {
@@ -347,6 +383,5 @@ class MainActivity : AppCompatActivity() {
         arrowDown.visibility = View.INVISIBLE
         arrowLeft.visibility = View.INVISIBLE
         arrowRight.visibility = View.INVISIBLE
-        stopButton.visibility = View.INVISIBLE
     }
 }
