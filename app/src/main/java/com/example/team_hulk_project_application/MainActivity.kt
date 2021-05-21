@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var arrowDown: ImageButton
     private lateinit var arrowLeft: ImageButton
     private lateinit var arrowRight: ImageButton
-    private lateinit var stopButton: Button
 
     private var manualMode = false
 
@@ -273,7 +272,7 @@ class MainActivity : AppCompatActivity() {
                 socketHandler.onKeyDown(0)
                 setViewConnectedToMowerAutoControl()
             } else {
-                socketHandler.onKeyDown(1)
+                socketHandler.onKeyDown(0)
                 setViewConnectedToMowerManualControl()
             }
         }
@@ -282,11 +281,11 @@ class MainActivity : AppCompatActivity() {
             val action = event.action
             when (action) {
                 MotionEvent.ACTION_DOWN -> {
-                    socketHandler.onKeyDown(5)
+                    socketHandler.onKeyDown(4)
                     Toast.makeText(this, "Turn right", Toast.LENGTH_SHORT).show()
                 }
                 MotionEvent.ACTION_UP -> {
-                    socketHandler.onKeyDown(2)
+                    socketHandler.onKeyDown(1)
                     Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -296,11 +295,11 @@ class MainActivity : AppCompatActivity() {
             val action = event.action
             when(action) {
                 MotionEvent.ACTION_DOWN -> {
-                    socketHandler.onKeyDown(6)
+                    socketHandler.onKeyDown(5)
                     Toast.makeText(this, "Turn left", Toast.LENGTH_SHORT).show()
                 }
                 MotionEvent.ACTION_UP -> {
-                    socketHandler.onKeyDown(2)
+                    socketHandler.onKeyDown(1)
                     Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -310,11 +309,11 @@ class MainActivity : AppCompatActivity() {
             val action = event.action
             when(action) {
                 MotionEvent.ACTION_DOWN -> {
-                    socketHandler.onKeyDown(3)
+                    socketHandler.onKeyDown(2)
                     Toast.makeText(this, "Forward", Toast.LENGTH_SHORT).show()
                 }
                 MotionEvent.ACTION_UP -> {
-                    socketHandler.onKeyDown(2)
+                    socketHandler.onKeyDown(1)
                     Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -324,11 +323,11 @@ class MainActivity : AppCompatActivity() {
             val action = event.action
             when(action) {
                 MotionEvent.ACTION_DOWN -> {
-                    socketHandler.onKeyDown(4)
+                    socketHandler.onKeyDown(3)
                     Toast.makeText(this, "Reverse", Toast.LENGTH_SHORT).show()
                 }
                 MotionEvent.ACTION_UP -> {
-                    socketHandler.onKeyDown(2)
+                    socketHandler.onKeyDown(1)
                     Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show()
                 }
             }
