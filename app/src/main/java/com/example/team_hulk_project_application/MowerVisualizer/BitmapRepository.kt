@@ -23,6 +23,12 @@ class BitmapRepository {
         return mower1;
     }
 
+    fun setLayersHidden() {
+        for (x in mower1) {
+            changeVisibilityByKeyword(x.keyWord!!, false)
+        }
+    }
+
     fun init(res: Resources, finished: (Boolean) -> Unit) {
         /* Initialize Bitmap-Repository here */
 

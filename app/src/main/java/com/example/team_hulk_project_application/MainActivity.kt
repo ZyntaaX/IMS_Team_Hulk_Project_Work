@@ -169,58 +169,22 @@ class MainActivity : AppCompatActivity() {
             if (counter < 0)
                 counter = 3
 
+            bitmapRepository.setLayersHidden()
+
             when (counter) {
-                3 -> {
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision1,
-                        false
-                    )
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision2,
-                        false
-                    )
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision3,
-                        false
-                    )
-                }
                 2 -> {
                     bitmapRepository.changeVisibilityByKeyword(
                         ImageLayerKeyword.MowerCollision1,
                         true
                     )
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision2,
-                        false
-                    )
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision3,
-                        false
-                    )
                 }
                 1 -> {
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision1,
-                        false
-                    )
                     bitmapRepository.changeVisibilityByKeyword(
                         ImageLayerKeyword.MowerCollision2,
                         true
                     )
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision3,
-                        false
-                    )
                 }
                 0 -> {
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision1,
-                        false
-                    )
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision2,
-                        false
-                    )
                     bitmapRepository.changeVisibilityByKeyword(
                         ImageLayerKeyword.MowerCollision3,
                         true
