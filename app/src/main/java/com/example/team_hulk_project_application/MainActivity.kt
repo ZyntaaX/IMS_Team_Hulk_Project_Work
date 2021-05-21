@@ -22,11 +22,16 @@ import androidx.core.view.accessibility.AccessibilityEventCompat.getAction
 import bitmapRepository
 import com.example.team_hulk_project_application.MowerVisualizer.ImageLayerKeyword
 import com.example.team_hulk_project_application.MowerVisualizer.bitmapGenerator
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import java.net.Socket
 import java.security.Key
 
 class MainActivity : AppCompatActivity() {
     private val ACCESS_FINE_LOCATION_CODE = 101
+
+    private lateinit var database: DatabaseReference
 
     private lateinit var connectButton: Button
     private lateinit var disconnectButton: Button
@@ -59,6 +64,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        database = Firebase.database.reference
 
         // Initializing all references to components in the layout-file
         connectButton = findViewById(R.id.connectButton)
