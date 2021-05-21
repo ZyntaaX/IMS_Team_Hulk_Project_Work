@@ -22,8 +22,9 @@ import androidx.core.view.accessibility.AccessibilityEventCompat.getAction
 import bitmapRepository
 import com.example.team_hulk_project_application.MowerVisualizer.ImageLayerKeyword
 import com.example.team_hulk_project_application.MowerVisualizer.bitmapGenerator
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import java.net.Socket
 import java.security.Key
@@ -37,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var disconnectButton: Button
     private lateinit var wifiIcon: ImageView
     private lateinit var collisionVisualizer: ImageView
-    private lateinit var switchCollision: Button
     private lateinit var switchControlMode: Button
 
     private lateinit var arrowUp: ImageButton
@@ -72,7 +72,6 @@ class MainActivity : AppCompatActivity() {
         disconnectButton = findViewById(R.id.disconnectButton)
         wifiIcon = findViewById(R.id.wifiEnabledIcon)
         collisionVisualizer = findViewById(R.id.mower_collision)
-        switchCollision = findViewById(R.id.switchcollisionindicator)
         switchControlMode = findViewById(R.id.switchControlMode)
 
         arrowUp = findViewById(R.id.arrow_up)
@@ -169,40 +168,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // NEEDS TO BE CLEANED UP, WAITING FOR ACTUAL MOWER DATA
-        var counter = 3
-        switchCollision.setOnClickListener {
-            counter--
-            if (counter < 0)
-                counter = 3
-
-            bitmapRepository.setLayersHidden()
-
-            when (counter) {
-                2 -> {
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision1,
-                        true
-                    )
-                }
-                1 -> {
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision2,
-                        true
-                    )
-                }
-                0 -> {
-                    bitmapRepository.changeVisibilityByKeyword(
-                        ImageLayerKeyword.MowerCollision3,
-                        true
-                    )
-                }
-            }
-
-            bitmapGenerator.createBitmap(bitmapRepository.getMutableList()!!) { bitmap, _, _ ->
-                collisionVisualizer.setImageBitmap(bitmap)
-            }
-        }
+        checkSensorData()
 
         var connectionStatus = 0
 
@@ -233,6 +199,39 @@ class MainActivity : AppCompatActivity() {
             setViewDisconnectedFromMower()
             connectionStatus = 0
         }
+    }
+
+    private fun checkSensorData(){
+        var ref = FirebaseDatabase.getInstance("https://teamhulkprojectwork-default-rtdb.europe-west1.firebasedatabase.app").reference
+
+        ref.child("rover_current_session").child("current_coordinates").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val obstacleClose = snapshot.child("obstacleClose").getValue(Boolean::class.java)
+                val obstacleCloser = snapshot.child("obstacleCloser").getValue(Boolean::class.java)
+                val obstacle = snapshot.child("obstacle").getValue(Boolean::class.java)
+                Log.d("obstacleClose", obstacleClose.toString())
+                Log.d("obstacleCloser", obstacleCloser.toString())
+                Log.d("obstacle", obstacle.toString())
+
+                bitmapRepository.setLayersHidden()
+
+                if(obstacle == true){
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision3, true)
+                }
+                else if(obstacleCloser == true){
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision2, true)
+                }
+                else if(obstacleClose == true){
+                    bitmapRepository.changeVisibilityByKeyword(ImageLayerKeyword.MowerCollision1, true)
+                }
+                bitmapGenerator.createBitmap(bitmapRepository.getMutableList()!!) { bitmap, _, _ ->
+                    collisionVisualizer.setImageBitmap(bitmap)
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("databaseError", error.toString())
+            }
+        })
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -322,7 +321,6 @@ class MainActivity : AppCompatActivity() {
         wifiIcon.visibility = View.VISIBLE
         collisionVisualizer.visibility = View.VISIBLE
         switchControlMode.visibility = View.VISIBLE
-        switchCollision.visibility = View.VISIBLE
     }
 
     private fun setViewConnectedToMowerManualControl() {
@@ -346,7 +344,6 @@ class MainActivity : AppCompatActivity() {
         disconnectButton.visibility = View.INVISIBLE
         wifiIcon.visibility = View.INVISIBLE
         collisionVisualizer.visibility = View.INVISIBLE
-        switchCollision.visibility = View.INVISIBLE
         switchControlMode.visibility = View.INVISIBLE
 
         arrowUp.visibility = View.INVISIBLE

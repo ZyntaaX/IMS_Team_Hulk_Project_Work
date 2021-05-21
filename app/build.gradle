@@ -35,7 +35,7 @@ android {
 
 dependencies {
 
-    implementation platform('com.google.firebase:firebase-bom:26.8.0') //Google Firebase
+    implementation platform('com.google.firebase:firebase-bom:28.0.1') //Google Firebase
     implementation 'com.google.firebase:firebase-database-ktx' // Firebase Realtime Database
     implementation 'com.google.firebase:firebase-analytics-ktx' //Google Analytics
 

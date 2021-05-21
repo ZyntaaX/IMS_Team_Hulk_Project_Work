@@ -27,6 +27,7 @@ class BitmapRepository {
         for (x in mower1) {
             changeVisibilityByKeyword(x.keyWord!!, false)
         }
+        changeVisibilityByKeyword(ImageLayerKeyword.MowerBase, true)
     }
 
     fun init(res: Resources, finished: (Boolean) -> Unit) {
